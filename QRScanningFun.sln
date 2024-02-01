@@ -5,9 +5,8 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5BD3BF22-0520-4834-AFC4-2B23CBD7AB9C}"
 	ProjectSection(SolutionItems) = preProject
-		..\.gitignore = ..\.gitignore
-		..\.github\workflows\main.yml = ..\.github\workflows\main.yml
-		..\README.md = ..\README.md
+		.gitignore = .gitignore
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{3228E52B-27B8-49F3-8DA9-E88410A76A7A}"
