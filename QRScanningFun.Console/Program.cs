@@ -1,10 +1,8 @@
-﻿using QRScanningFun.Application;
-
-namespace QRScanningFun.Console
+﻿namespace QRScanningFun.Console
 {
-    internal class Program
+    internal static class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             System.Console.WriteLine("Hello, World!");
         }

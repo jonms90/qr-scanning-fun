@@ -7,7 +7,7 @@ namespace QRScanningFun.Application.Tests
         [InlineData("https://example.com",2)]
         public void SelectEncodingByInput(string s, int expectedResult)
         {
-            Assert.Equal(expectedResult, new QRCodeGenerator().SelectEncodingByInput(s));
+            Assert.Equal(expectedResult, QRCodeGenerator.SelectEncodingByInput(s));
         }
 
         [Theory]
@@ -15,7 +15,7 @@ namespace QRScanningFun.Application.Tests
         [InlineData(2, "0010")]
         public void GetModeIndicatorByEncodingMode(int mode, string expectedResult)
         {
-            Assert.Equal(expectedResult, new QRCodeGenerator().GetModeIndicatorByEncodingMode(mode));
+            Assert.Equal(expectedResult, QRCodeGenerator.GetModeIndicatorByEncodingMode(mode));
         }
 
         [Fact]

@@ -9,7 +9,7 @@ namespace QRScanningFun.Application
         private const int AlphaNumericMaxBitLength = 11; // 44*45 + 44 = 2024 => fits into 11 bits.
         private const int AlphaNumericSingleBitLength = 6; // 44 => fits into 6 bits.
 
-        public int SelectEncodingByInput(string s)
+        public static int SelectEncodingByInput(string s)
         {
             if (s == null)
             {
@@ -19,7 +19,7 @@ namespace QRScanningFun.Application
             return s.All(char.IsNumber) ? NumericEncodingMode : AlphaNumericEncodingMode;
         }
 
-        public string GetModeIndicatorByEncodingMode(int mode)
+        public static string GetModeIndicatorByEncodingMode(int mode)
         {
             return mode switch
             {
@@ -40,24 +40,24 @@ namespace QRScanningFun.Application
             return GetCodedText(s, GetAlphaNumericValues());
         }
 
-        private string GetCodedText(string input, Dictionary<char, int> alphaNumericValues)
+        private static string GetCodedText(string input, Dictionary<char, int> alphaNumericValues)
         {
-            var result = "";
+            var sb = new StringBuilder();
             while (input.Length >= 2)
             {
                 var nextSection = input[..2];
                 var base45 = (alphaNumericValues[nextSection[0]] * 45) + alphaNumericValues[nextSection[1]];
-                result += Convert.ToString(base45, 2).PadLeft(AlphaNumericMaxBitLength, '0');
+                sb.Append(Convert.ToString(base45, 2).PadLeft(AlphaNumericMaxBitLength, '0'));
                 input = input[2..];
             }
 
             if (input.Length > 0)
             {
-                result += Convert.ToString(alphaNumericValues[input[0]], 2)
-                    .PadLeft(AlphaNumericSingleBitLength, '0');
+                sb.Append(Convert.ToString(alphaNumericValues[input[0]], 2)
+                    .PadLeft(AlphaNumericSingleBitLength, '0'));
             }
 
-            return result;
+            return sb.ToString();
         }
 
         private static Dictionary<char, int> GetAlphaNumericValues()
