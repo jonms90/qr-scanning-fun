@@ -29,13 +29,13 @@ namespace QRScanningFun.Application
             };
         }
 
-        public string GetCharacterCountIndicator(string input)
+        public static string GetCharacterCountIndicator(string input)
         {
             var indicatorLength = SelectEncodingByInput(input) == NumericEncodingMode ? 10 : 9;
             return Convert.ToString(input.Length, 2).PadLeft(indicatorLength, '0');
         }
 
-        public string GetDataBits(string s)
+        public static string GetDataBits(string s)
         {
             return GetCodedText(s, GetAlphaNumericValues());
         }
