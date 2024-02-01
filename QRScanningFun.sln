@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5BD3BF22-0520-4834-AFC4-2B23CBD7AB9C}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\.github\workflows\main.yml = ..\.github\workflows\main.yml
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{3228E52B-27B8-49F3-8DA9-E88410A76A7A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QRScanningFun.Application.Tests", "tests\QRScanningFun.Application.Tests\QRScanningFun.Application.Tests.csproj", "{DE21B6FF-DD11-405F-A00F-7EB8FD726BDC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QRScanningFun.Application", "QRScanningFun.Application\QRScanningFun.Application.csproj", "{D59D95FD-41CC-49E1-B45F-0EEE258B6813}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QRScanningFun.Console", "QRScanningFun.Console\QRScanningFun.Console.csproj", "{AB912F79-BB8F-4A4A-97A8-A21CC2848688}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE21B6FF-DD11-405F-A00F-7EB8FD726BDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE21B6FF-DD11-405F-A00F-7EB8FD726BDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE21B6FF-DD11-405F-A00F-7EB8FD726BDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE21B6FF-DD11-405F-A00F-7EB8FD726BDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D59D95FD-41CC-49E1-B45F-0EEE258B6813}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D59D95FD-41CC-49E1-B45F-0EEE258B6813}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D59D95FD-41CC-49E1-B45F-0EEE258B6813}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D59D95FD-41CC-49E1-B45F-0EEE258B6813}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB912F79-BB8F-4A4A-97A8-A21CC2848688}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB912F79-BB8F-4A4A-97A8-A21CC2848688}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB912F79-BB8F-4A4A-97A8-A21CC2848688}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB912F79-BB8F-4A4A-97A8-A21CC2848688}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DE21B6FF-DD11-405F-A00F-7EB8FD726BDC} = {3228E52B-27B8-49F3-8DA9-E88410A76A7A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6F137BE8-4FD6-4561-A0A5-B72425A3D51B}
+	EndGlobalSection
+EndGlobal
