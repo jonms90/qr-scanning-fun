@@ -143,11 +143,11 @@ namespace QRScanningFun.Application
             }
 
             var terminatorLength = Math.Min(totalNumberOfBitsRequired - dataBitString.Length, MaxTerminatorBitLength);
-            var terminatedString = dataBitString += string.Join("",Enumerable.Repeat('0', terminatorLength));
+            var terminatedString = dataBitString + string.Join("",Enumerable.Repeat('0', terminatorLength));
             if (terminatedString.Length % BitsInAByte != 0)
             {
                 var zeroPaddingLength = BitsInAByte - (terminatedString.Length % BitsInAByte);
-                terminatedString = terminatedString += string.Join("", Enumerable.Repeat('0',zeroPaddingLength));
+                terminatedString += string.Join("", Enumerable.Repeat('0',zeroPaddingLength));
             }
 
             if (terminatedString.Length >= totalNumberOfBitsRequired)
