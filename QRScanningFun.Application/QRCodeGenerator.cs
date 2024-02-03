@@ -9,6 +9,8 @@ namespace QRScanningFun.Application
 
         private static readonly Dictionary<char, int> AlphaNumericValues = GetAlphaNumericValues();
 
+        private static List<Capacity> Capacities = GetCapacities();
+
         public static EncodingMode SelectEncodingByInput(string s)
         {
             if (s == null)
@@ -67,6 +69,19 @@ namespace QRScanningFun.Application
             return sb.ToString();
         }
 
+        public static CodeVersion DetermineSmallestVersion(string input, ErrorCorrectionLevel correctionLevel)
+        {
+            var encodingMode = SelectEncodingByInput(input);
+            var capacity = Capacities
+                .Where(c => c.EncodingMode == encodingMode && c.CorrectionLevel == correctionLevel)
+                .OrderBy(c => c.MaxCapacity)
+                .FirstOrDefault(c => c.MaxCapacity > input.Length);
+
+            return capacity?.Version ?? throw new ArgumentOutOfRangeException(nameof(input),
+                "Not able to find a large enough version based on input.");
+        }
+
+
         private static Dictionary<char, int> GetAlphaNumericValues()
         {
             return new Dictionary<char, int>()
@@ -117,6 +132,61 @@ namespace QRScanningFun.Application
                 {'/', 43},
                 {':', 44}
             };
+        }
+
+        private static List<Capacity> GetCapacities()
+        {
+            return
+            [
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.L, EncodingMode.Numeric, 41),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.L, EncodingMode.Alphanumeric, 25),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.L, EncodingMode.Byte, 17),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.M, EncodingMode.Numeric, 34),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.M, EncodingMode.Alphanumeric, 20),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.M, EncodingMode.Byte, 14),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.Q, EncodingMode.Numeric, 27),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.Q, EncodingMode.Alphanumeric, 16),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.Q, EncodingMode.Byte, 11),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.H, EncodingMode.Numeric, 17),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.H, EncodingMode.Alphanumeric, 10),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.H, EncodingMode.Byte, 7),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.L, EncodingMode.Numeric, 77),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.L, EncodingMode.Alphanumeric, 47),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.L, EncodingMode.Byte, 32),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.M, EncodingMode.Numeric, 63),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.M, EncodingMode.Alphanumeric, 38),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.M, EncodingMode.Byte, 26),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.Q, EncodingMode.Numeric, 48),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.Q, EncodingMode.Alphanumeric, 29),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.Q, EncodingMode.Byte, 20),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.H, EncodingMode.Numeric, 34),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.H, EncodingMode.Alphanumeric, 20),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.H, EncodingMode.Byte, 14),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.L, EncodingMode.Numeric, 127),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.L, EncodingMode.Alphanumeric, 77),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.L, EncodingMode.Byte, 53),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.M, EncodingMode.Numeric, 101),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.M, EncodingMode.Alphanumeric, 61),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.M, EncodingMode.Byte, 42),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.Q, EncodingMode.Numeric, 77),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.Q, EncodingMode.Alphanumeric, 47),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.Q, EncodingMode.Byte, 32),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.H, EncodingMode.Numeric, 58),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.H, EncodingMode.Alphanumeric, 35),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.H, EncodingMode.Byte, 24),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.L, EncodingMode.Numeric, 187),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.L, EncodingMode.Alphanumeric, 114),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.L, EncodingMode.Byte, 78),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.M, EncodingMode.Numeric, 149),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.M, EncodingMode.Alphanumeric, 90),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.M, EncodingMode.Byte, 62),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.Q, EncodingMode.Numeric, 111),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.Q, EncodingMode.Alphanumeric, 67),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.Q, EncodingMode.Byte, 46),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, EncodingMode.Numeric, 82),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, EncodingMode.Alphanumeric, 50),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, EncodingMode.Byte, 34)
+            ];
         }
     }
 }
