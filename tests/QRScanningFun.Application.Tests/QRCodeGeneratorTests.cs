@@ -31,6 +31,13 @@ namespace QRScanningFun.Application.Tests
             Assert.Equal("000001110", QRCodeGenerator.GetCharacterCountIndicator("HELLO CC WORLD"));
         }
 
+        [Theory]
+        [InlineData(CodeVersion.V1, EncodingMode.Numeric, 10)]
+        public void GetCharacterCountIndicatorLength(CodeVersion version, EncodingMode mode, int expectedLength)
+        {
+            Assert.Equal(expectedLength, QRCodeGenerator.GetCharacterCountIndicatorLength(version, mode));
+        }
+
         [Fact]
         public void GetDataBits()
         {

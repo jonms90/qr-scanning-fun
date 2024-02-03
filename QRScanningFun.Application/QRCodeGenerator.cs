@@ -81,6 +81,52 @@ namespace QRScanningFun.Application
                 "Not able to find a large enough version based on input.");
         }
 
+        public static int GetCharacterCountIndicatorLength(CodeVersion version, EncodingMode mode)
+        {
+            return version switch
+            {
+                <= CodeVersion.V9 => GetSmallCharacterCountLength(mode),
+                <= CodeVersion.V26 => GetMediumCharacterCountLength(mode),
+                _ => GetLargeCharacterCountLength(mode)
+            };
+        }
+
+        private static int GetLargeCharacterCountLength(EncodingMode mode)
+        {
+            return mode switch
+            {
+                EncodingMode.Numeric => 14,
+                EncodingMode.Alphanumeric => 13,
+                EncodingMode.Byte => 16,
+                EncodingMode.Kanji => throw new ArgumentException("Kanji is not supported.", nameof(mode)),
+                _ => throw new ArgumentException("EncodingMode is not supported.", nameof(mode))
+            };
+        }
+
+        private static int GetMediumCharacterCountLength(EncodingMode mode)
+        {
+            return mode switch
+            {
+                EncodingMode.Numeric => 12,
+                EncodingMode.Alphanumeric => 11,
+                EncodingMode.Byte => 16,
+                EncodingMode.Kanji => throw new ArgumentException("Kanji is not supported.", nameof(mode)),
+                _ => throw new ArgumentException("EncodingMode is not supported.", nameof(mode))
+            };
+        }
+
+        private static int GetSmallCharacterCountLength(EncodingMode mode)
+        {
+            return mode switch
+            {
+                EncodingMode.Numeric => 10,
+                EncodingMode.Alphanumeric => 9,
+                EncodingMode.Byte => 8,
+                EncodingMode.Kanji => throw new ArgumentException("Kanji is not supported.", nameof(mode)),
+                _ => throw new ArgumentException("EncodingMode is not supported.", nameof(mode))
+            };
+        }
+
 
         private static Dictionary<char, int> GetAlphaNumericValues()
         {
@@ -188,5 +234,7 @@ namespace QRScanningFun.Application
                 new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, EncodingMode.Byte, 34)
             ];
         }
+
+        
     }
 }
