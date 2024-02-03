@@ -24,12 +24,14 @@ namespace QRScanningFun.Application
             return s.All(AlphaNumericValues.ContainsKey) ? EncodingMode.Alphanumeric : EncodingMode.Byte;
         }
 
-        public static string GetModeIndicatorByEncodingMode(int mode)
+        public static string GetModeIndicatorByEncodingMode(EncodingMode mode)
         {
             return mode switch
             {
-                1 => "0001",
-                2 => "0010",
+                EncodingMode.Numeric => "0001",
+                EncodingMode.Alphanumeric => "0010",
+                EncodingMode.Byte => "0100",
+                EncodingMode.Kanji => throw new NotImplementedException("Kanji is not implemented as an encoding mode."),
                 _ => throw new ArgumentOutOfRangeException(nameof(mode))
             };
         }

@@ -17,9 +17,10 @@ namespace QRScanningFun.Application.Tests
         }
 
         [Theory]
-        [InlineData(1, "0001")]
-        [InlineData(2, "0010")]
-        public void GetModeIndicatorByEncodingMode(int mode, string expectedResult)
+        [InlineData(EncodingMode.Numeric, "0001")]
+        [InlineData(EncodingMode.Alphanumeric, "0010")]
+        [InlineData(EncodingMode.Byte, "0100")]
+        public void GetModeIndicatorByEncodingMode(EncodingMode mode, string expectedResult)
         {
             Assert.Equal(expectedResult, QRCodeGenerator.GetModeIndicatorByEncodingMode(mode));
         }
