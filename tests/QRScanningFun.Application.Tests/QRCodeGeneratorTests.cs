@@ -3,9 +3,9 @@ namespace QRScanningFun.Application.Tests
     public class SelectEncodingByInputTests
     {
         [Theory]
-        [InlineData("1",1)]
-        [InlineData("https://example.com",2)]
-        public void SelectEncodingByInput(string s, int expectedResult)
+        [InlineData("1",EncodingModes.Numeric)]
+        [InlineData("https://example.com",EncodingModes.Alphanumeric)]
+        public void SelectEncodingByInput(string s, EncodingModes expectedResult)
         {
             Assert.Equal(expectedResult, QRCodeGenerator.SelectEncodingByInput(s));
         }
@@ -21,13 +21,13 @@ namespace QRScanningFun.Application.Tests
         [Fact]
         public void GetCharacterCountIndicator()
         {
-            Assert.Equal("000001110", new QRCodeGenerator().GetCharacterCountIndicator("HELLO CC WORLD"));
+            Assert.Equal("000001110", QRCodeGenerator.GetCharacterCountIndicator("HELLO CC WORLD"));
         }
 
         [Fact]
         public void GetDataBits()
         {
-            Assert.Equal("01100001011011110001101000101110001000101000110011101001000101001101110111110", new QRCodeGenerator().GetDataBits("HELLO CC WORLD"));
+            Assert.Equal("01100001011011110001101000101110001000101000110011101001000101001101110111110", QRCodeGenerator.GetDataBits("HELLO CC WORLD"));
         }
     }
 }

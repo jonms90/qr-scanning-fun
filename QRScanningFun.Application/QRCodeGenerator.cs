@@ -4,19 +4,12 @@ namespace QRScanningFun.Application
 {
     public class QRCodeGenerator
     {
-        private const int NumericEncodingMode = 1;
-        private const int AlphaNumericEncodingMode = 2;
         private const int AlphaNumericMaxBitLength = 11; // 44*45 + 44 = 2024 => fits into 11 bits.
         private const int AlphaNumericSingleBitLength = 6; // 44 => fits into 6 bits.
 
-        public static int SelectEncodingByInput(string s)
+        public static EncodingModes SelectEncodingByInput(string s)
         {
-            if (s == null)
-            {
-                throw new ArgumentNullException(s);
-            }
-
-            return s.All(char.IsNumber) ? NumericEncodingMode : AlphaNumericEncodingMode;
+            return s == null ? throw new ArgumentNullException(s) : s.All(char.IsNumber) ? EncodingModes.Numeric : EncodingModes.Alphanumeric;
         }
 
         public static string GetModeIndicatorByEncodingMode(int mode)
@@ -31,7 +24,7 @@ namespace QRScanningFun.Application
 
         public static string GetCharacterCountIndicator(string input)
         {
-            var indicatorLength = SelectEncodingByInput(input) == NumericEncodingMode ? 10 : 9;
+            var indicatorLength = SelectEncodingByInput(input) == EncodingModes.Numeric ? 10 : 9;
             return Convert.ToString(input.Length, 2).PadLeft(indicatorLength, '0');
         }
 
