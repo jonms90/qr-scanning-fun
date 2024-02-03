@@ -166,6 +166,13 @@ namespace QRScanningFun.Application
             return terminatedString;
         }
 
+        public static string GetErrorCorrectionCode(string rawDataBitsInput, ErrorCorrectionLevel errorCorrectionLevel = ErrorCorrectionLevel.Q)
+        {
+
+
+            return string.Empty;
+        }
+
         public static int GetCharacterCountIndicatorLength(CodeVersion version, EncodingMode mode)
         {
             return version switch
