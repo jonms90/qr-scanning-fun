@@ -1,6 +1,6 @@
 ﻿namespace QRScanningFun.Application
 {
-    public enum EncodingModes
+    public enum EncodingMode
     {
         Numeric,
         Alphanumeric,

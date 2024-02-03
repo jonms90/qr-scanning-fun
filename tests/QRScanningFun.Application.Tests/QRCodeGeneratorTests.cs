@@ -3,9 +3,9 @@ namespace QRScanningFun.Application.Tests
     public class SelectEncodingByInputTests
     {
         [Theory]
-        [InlineData("1",EncodingModes.Numeric)]
-        [InlineData("https://example.com",EncodingModes.Alphanumeric)]
-        public void SelectEncodingByInput(string s, EncodingModes expectedResult)
+        [InlineData("1",EncodingMode.Numeric)]
+        [InlineData("https://example.com",EncodingMode.Alphanumeric)]
+        public void SelectEncodingByInput(string s, EncodingMode expectedResult)
         {
             Assert.Equal(expectedResult, QRCodeGenerator.SelectEncodingByInput(s));
         }
