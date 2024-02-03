@@ -6,6 +6,10 @@ namespace QRScanningFun.Application
     {
         private const int AlphaNumericMaxBitLength = 11; // 44*45 + 44 = 2024 => fits into 11 bits.
         private const int AlphaNumericSingleBitLength = 6; // 44 => fits into 6 bits.
+        private const int BitsInAByte = 8;
+        private const int MaxTerminatorBitLength = 4;
+        private const string PadByte236 = "11101100";
+        private const string PadByte17 = "00010001";
 
         private static readonly Dictionary<char, int> AlphaNumericValues = GetAlphaNumericValues();
 
@@ -104,6 +108,60 @@ namespace QRScanningFun.Application
 
             return capacity?.Version ?? throw new ArgumentOutOfRangeException(nameof(input),
                 "Not able to find a large enough version based on input.");
+        }
+
+        public static string GetTerminatorBits(string input, ErrorCorrectionLevel correctionLevel = ErrorCorrectionLevel.Q)
+        {
+            var version = DetermineSmallestVersion(input, correctionLevel);
+            var totalNumberOfBitsRequired = Capacities.First(c =>
+                c.Version == version && c.CorrectionLevel == correctionLevel).TotalCodeWords * BitsInAByte;
+            var modeIndicator = GetModeIndicatorByEncodingMode(SelectEncodingByInput(input));
+            var characterCountIndicator = GetCharacterCountIndicator(input);
+            var encodedData = GetDataBits(input);
+            var dataBitString = $"{modeIndicator}{characterCountIndicator}{encodedData}";
+            if (dataBitString.Length >= totalNumberOfBitsRequired)
+            {
+                return dataBitString;
+            }
+
+            var terminatorLength = Math.Min(totalNumberOfBitsRequired - dataBitString.Length, MaxTerminatorBitLength);
+            return string.Join("", Enumerable.Repeat('0', terminatorLength));
+        }
+
+        public static IEnumerable<char> GetRawDataBits(string input, ErrorCorrectionLevel correctionLevel = ErrorCorrectionLevel.Q)
+        {
+            var version = DetermineSmallestVersion(input, correctionLevel);
+            var totalNumberOfBitsRequired = Capacities.First(c =>
+                c.Version == version && c.CorrectionLevel == correctionLevel).TotalCodeWords * BitsInAByte;
+            var modeIndicator = GetModeIndicatorByEncodingMode(SelectEncodingByInput(input));
+            var characterCountIndicator = GetCharacterCountIndicator(input);
+            var encodedData = GetDataBits(input);
+            var dataBitString = $"{modeIndicator}{characterCountIndicator}{encodedData}";
+            if (dataBitString.Length >= totalNumberOfBitsRequired)
+            {
+                return dataBitString;
+            }
+
+            var terminatorLength = Math.Min(totalNumberOfBitsRequired - dataBitString.Length, MaxTerminatorBitLength);
+            var terminatedString = dataBitString += string.Join("",Enumerable.Repeat('0', terminatorLength));
+            if (terminatedString.Length % BitsInAByte != 0)
+            {
+                var zeroPaddingLength = BitsInAByte - (terminatedString.Length % BitsInAByte);
+                terminatedString = terminatedString += string.Join("", Enumerable.Repeat('0',zeroPaddingLength));
+            }
+
+            if (terminatedString.Length < totalNumberOfBitsRequired)
+            {
+                var bytesToPad = (totalNumberOfBitsRequired - terminatedString.Length) / 8;
+                while (bytesToPad > 0)
+                {
+                    var padByteString = bytesToPad % 2 != 0 ? PadByte236 : PadByte17;
+                    terminatedString += padByteString;
+                    bytesToPad--;
+                }
+            }
+
+            return terminatedString;
         }
 
         public static int GetCharacterCountIndicatorLength(CodeVersion version, EncodingMode mode)
@@ -208,55 +266,57 @@ namespace QRScanningFun.Application
         {
             return
             [
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.L, EncodingMode.Numeric, 41),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.L, EncodingMode.Alphanumeric, 25),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.L, EncodingMode.Byte, 17),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.M, EncodingMode.Numeric, 34),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.M, EncodingMode.Alphanumeric, 20),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.M, EncodingMode.Byte, 14),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.Q, EncodingMode.Numeric, 27),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.Q, EncodingMode.Alphanumeric, 16),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.Q, EncodingMode.Byte, 11),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.H, EncodingMode.Numeric, 17),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.H, EncodingMode.Alphanumeric, 10),
-                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.H, EncodingMode.Byte, 7),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.L, EncodingMode.Numeric, 77),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.L, EncodingMode.Alphanumeric, 47),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.L, EncodingMode.Byte, 32),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.M, EncodingMode.Numeric, 63),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.M, EncodingMode.Alphanumeric, 38),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.M, EncodingMode.Byte, 26),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.Q, EncodingMode.Numeric, 48),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.Q, EncodingMode.Alphanumeric, 29),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.Q, EncodingMode.Byte, 20),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.H, EncodingMode.Numeric, 34),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.H, EncodingMode.Alphanumeric, 20),
-                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.H, EncodingMode.Byte, 14),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.L, EncodingMode.Numeric, 127),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.L, EncodingMode.Alphanumeric, 77),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.L, EncodingMode.Byte, 53),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.M, EncodingMode.Numeric, 101),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.M, EncodingMode.Alphanumeric, 61),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.M, EncodingMode.Byte, 42),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.Q, EncodingMode.Numeric, 77),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.Q, EncodingMode.Alphanumeric, 47),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.Q, EncodingMode.Byte, 32),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.H, EncodingMode.Numeric, 58),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.H, EncodingMode.Alphanumeric, 35),
-                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.H, EncodingMode.Byte, 24),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.L, EncodingMode.Numeric, 187),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.L, EncodingMode.Alphanumeric, 114),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.L, EncodingMode.Byte, 78),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.M, EncodingMode.Numeric, 149),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.M, EncodingMode.Alphanumeric, 90),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.M, EncodingMode.Byte, 62),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.Q, EncodingMode.Numeric, 111),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.Q, EncodingMode.Alphanumeric, 67),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.Q, EncodingMode.Byte, 46),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, EncodingMode.Numeric, 82),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, EncodingMode.Alphanumeric, 50),
-                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, EncodingMode.Byte, 34)
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.L, 19, EncodingMode.Numeric, 41),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.L, 19, EncodingMode.Alphanumeric, 25),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.L, 19, EncodingMode.Byte, 17),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.M, 16,EncodingMode.Numeric, 34),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.M, 16,EncodingMode.Alphanumeric, 20),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.M, 16,EncodingMode.Byte, 14),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.Q, 13,EncodingMode.Numeric, 27),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.Q, 13,EncodingMode.Alphanumeric, 16),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.Q, 13,EncodingMode.Byte, 11),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.H, 9,EncodingMode.Numeric, 17),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.H, 9,EncodingMode.Alphanumeric, 10),
+                new Capacity(CodeVersion.V1, ErrorCorrectionLevel.H, 9,EncodingMode.Byte, 7),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.L, 34,EncodingMode.Numeric, 77),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.L, 34,EncodingMode.Alphanumeric, 47),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.L, 34,EncodingMode.Byte, 32),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.M, 28,EncodingMode.Numeric, 63),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.M, 28,EncodingMode.Alphanumeric, 38),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.M, 28,EncodingMode.Byte, 26),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.Q, 22,EncodingMode.Numeric, 48),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.Q, 22,EncodingMode.Alphanumeric, 29),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.Q, 22,EncodingMode.Byte, 20),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.H, 16,EncodingMode.Numeric, 34),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.H, 16,EncodingMode.Alphanumeric, 20),
+                new Capacity(CodeVersion.V2, ErrorCorrectionLevel.H, 16,EncodingMode.Byte, 14),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.L, 55,EncodingMode.Numeric, 127),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.L, 55,EncodingMode.Alphanumeric, 77),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.L, 55,EncodingMode.Byte, 53),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.M, 44,EncodingMode.Numeric, 101),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.M, 44,EncodingMode.Alphanumeric, 61),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.M, 44,EncodingMode.Byte, 42),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.Q, 34,EncodingMode.Numeric, 77),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.Q, 34,EncodingMode.Alphanumeric, 47),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.Q, 34,EncodingMode.Byte, 32),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.H, 26,EncodingMode.Numeric, 58),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.H, 26,EncodingMode.Alphanumeric, 35),
+                new Capacity(CodeVersion.V3, ErrorCorrectionLevel.H, 26,EncodingMode.Byte, 24),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.L, 80,EncodingMode.Numeric, 187),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.L, 80,EncodingMode.Alphanumeric, 114),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.L, 80,EncodingMode.Byte, 78),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.M, 64,EncodingMode.Numeric, 149),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.M, 64,EncodingMode.Alphanumeric, 90),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.M, 64,EncodingMode.Byte, 62),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.Q, 48,EncodingMode.Numeric, 111),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.Q, 48,EncodingMode.Alphanumeric, 67),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.Q, 48,EncodingMode.Byte, 46),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, 16,EncodingMode.Numeric, 82),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, 16,EncodingMode.Alphanumeric, 50),
+                new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, 16, EncodingMode.Byte, 34)
             ];
         }
+
+        
     }
 }

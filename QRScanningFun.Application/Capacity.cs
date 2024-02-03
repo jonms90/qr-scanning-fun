@@ -1,6 +1,6 @@
 ﻿namespace QRScanningFun.Application;
 
-public class Capacity(CodeVersion version, ErrorCorrectionLevel correctionLevel, EncodingMode encodingMode, int maxCapacity)
+public class Capacity(CodeVersion version, ErrorCorrectionLevel correctionLevel, int totalCodeWords,  EncodingMode encodingMode, int maxCapacity)
 {
     public const int UpperLimitNumeric = 7089;
     public const int UpperLimitAlphanumeric = 4296;
@@ -10,4 +10,5 @@ public class Capacity(CodeVersion version, ErrorCorrectionLevel correctionLevel,
     public ErrorCorrectionLevel CorrectionLevel { get; } = correctionLevel;
     public CodeVersion Version { get; } = version;
     public int MaxCapacity { get; } = maxCapacity;
+    public int TotalCodeWords { get; } = totalCodeWords;
 }

@@ -23,5 +23,16 @@ namespace QRScanningFun.Application.Tests
         {
             Assert.Equal(expectedResult, QRCodeGenerator.GetDataBits(input));
         }
+
+        [Fact]
+        public void TerminatorBits()
+        {
+            Assert.Equal("0000", QRCodeGenerator.GetTerminatorBits("HELLO WORLD"));
+        }
+        [Fact]
+        public void GetRawDataBits()
+        {
+            Assert.Equal("00100000010110110000101101111000110100010111001011011100010011010100001101000000111011000001000111101100", QRCodeGenerator.GetRawDataBits("HELLO WORLD"));
+        }
     }
 }
