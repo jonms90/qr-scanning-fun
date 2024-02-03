@@ -7,6 +7,8 @@ namespace QRScanningFun.Application
         private const int AlphaNumericMaxBitLength = 11; // 44*45 + 44 = 2024 => fits into 11 bits.
         private const int AlphaNumericSingleBitLength = 6; // 44 => fits into 6 bits.
 
+        private static readonly Dictionary<char, int> AlphaNumericValues = GetAlphaNumericValues();
+
         public static EncodingMode SelectEncodingByInput(string s)
         {
             if (s == null)
@@ -14,7 +16,12 @@ namespace QRScanningFun.Application
                 throw new ArgumentNullException(s);
             }
 
-            return s.All(char.IsNumber) ? EncodingMode.Numeric : EncodingMode.Alphanumeric;
+            if (s.All(char.IsNumber))
+            {
+                return EncodingMode.Numeric;
+            }
+
+            return s.All(AlphaNumericValues.ContainsKey) ? EncodingMode.Alphanumeric : EncodingMode.Byte;
         }
 
         public static string GetModeIndicatorByEncodingMode(int mode)

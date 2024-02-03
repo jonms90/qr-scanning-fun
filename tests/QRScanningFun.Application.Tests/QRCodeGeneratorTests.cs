@@ -3,8 +3,14 @@ namespace QRScanningFun.Application.Tests
     public class SelectEncodingByInputTests
     {
         [Theory]
+        [InlineData("0",EncodingMode.Numeric)]
         [InlineData("1",EncodingMode.Numeric)]
-        [InlineData("https://example.com",EncodingMode.Alphanumeric)]
+        [InlineData("999",EncodingMode.Numeric)]
+        [InlineData("421532312",EncodingMode.Numeric)]
+        [InlineData("HTTPS://EXAMPLE.COM",EncodingMode.Alphanumeric)]
+        [InlineData("https://example.com", EncodingMode.Byte)]
+        [InlineData("-1", EncodingMode.Alphanumeric)]
+
         public void SelectEncodingByInput(string s, EncodingMode expectedResult)
         {
             Assert.Equal(expectedResult, QRCodeGenerator.SelectEncodingByInput(s));
