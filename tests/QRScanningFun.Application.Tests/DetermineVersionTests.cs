@@ -17,13 +17,25 @@
         }
 
         [Fact]
-        public void UnsupportedInputLengthThrowsArgumentException()
+        public void UnsupportedInputLengthThrowsArgumentOutOfRangeException()
         {
             // Only implemented support for up to Version 4.
             Assert.Throws<ArgumentOutOfRangeException>(() =>
                 QRCodeGenerator.DetermineSmallestVersion(
                     "This is too long to fit inside a quick response code of version 4",
                     ErrorCorrectionLevel.H));
+        }
+
+        [Theory]
+        [InlineData('1', Capacity.UpperLimitNumeric)]
+        [InlineData('A', Capacity.UpperLimitAlphanumeric)]
+        [InlineData('a', Capacity.UpperLimitByte)]
+        public void InputBeyondUpperLimitsThrowsArgumentOutOfRangeException(char input, int upperLimit)
+        {
+            // Only implemented support for up to Version 4.
+            var data = string.Join("", Enumerable.Repeat(input, upperLimit + 1));
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                QRCodeGenerator.DetermineSmallestVersion(data, ErrorCorrectionLevel.L));
         }
     }
 }
