@@ -5,5 +5,5 @@ public class Capacity(CodeVersion version, ErrorCorrectionLevel correctionLevel,
     public EncodingMode EncodingMode { get; } = encodingMode;
     public ErrorCorrectionLevel CorrectionLevel { get; } = correctionLevel;
     public CodeVersion Version { get; } = version;
-    public int MaxCapacity = maxCapacity;
+    public int MaxCapacity { get; } = maxCapacity;
 }
