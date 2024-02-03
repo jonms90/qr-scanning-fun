@@ -46,7 +46,32 @@ namespace QRScanningFun.Application
 
         public static string GetDataBits(string s)
         {
+            var mode = SelectEncodingByInput(s);
+            if (mode == EncodingMode.Numeric)
+            {
+                return GetNumericEncodedText(s);
+            }
+
             return GetCodedText(s, GetAlphaNumericValues());
+        }
+
+        private static string GetNumericEncodedText(string input)
+        {
+            var sb = new StringBuilder();
+            while (input.Length >= 3)
+            {
+                var nextSection = input[..3];
+                var number = int.Parse(nextSection);
+                sb.Append(Convert.ToString(number, 2).PadLeft(4, '0'));
+                input = input[3..];
+            }
+
+            if (input.Length > 0)
+            {
+                sb.Append(Convert.ToString(int.Parse(input), 2).PadLeft(4, '0'));
+            }
+
+            return sb.ToString();
         }
 
         private static string GetCodedText(string input, Dictionary<char, int> alphaNumericValues)
@@ -179,7 +204,6 @@ namespace QRScanningFun.Application
                 {':', 44}
             };
         }
-
         private static List<Capacity> GetCapacities()
         {
             return
@@ -234,7 +258,5 @@ namespace QRScanningFun.Application
                 new Capacity(CodeVersion.V4, ErrorCorrectionLevel.H, EncodingMode.Byte, 34)
             ];
         }
-
-        
     }
 }
