@@ -128,7 +128,7 @@ namespace QRScanningFun.Application
             return string.Join("", Enumerable.Repeat('0', terminatorLength));
         }
 
-        public static IEnumerable<char> GetRawDataBits(string input, ErrorCorrectionLevel correctionLevel = ErrorCorrectionLevel.Q)
+        public static string GetRawDataBits(string input, ErrorCorrectionLevel correctionLevel = ErrorCorrectionLevel.Q)
         {
             var version = DetermineSmallestVersion(input, correctionLevel);
             var totalNumberOfBitsRequired = Capacities.First(c =>
@@ -150,15 +150,17 @@ namespace QRScanningFun.Application
                 terminatedString = terminatedString += string.Join("", Enumerable.Repeat('0',zeroPaddingLength));
             }
 
-            if (terminatedString.Length < totalNumberOfBitsRequired)
+            if (terminatedString.Length >= totalNumberOfBitsRequired)
             {
-                var bytesToPad = (totalNumberOfBitsRequired - terminatedString.Length) / 8;
-                while (bytesToPad > 0)
-                {
-                    var padByteString = bytesToPad % 2 != 0 ? PadByte236 : PadByte17;
-                    terminatedString += padByteString;
-                    bytesToPad--;
-                }
+                return terminatedString;
+            }
+
+            var bytesToPad = (totalNumberOfBitsRequired - terminatedString.Length) / 8;
+            while (bytesToPad > 0)
+            {
+                var padByteString = bytesToPad % 2 != 0 ? PadByte236 : PadByte17;
+                terminatedString += padByteString;
+                bytesToPad--;
             }
 
             return terminatedString;
