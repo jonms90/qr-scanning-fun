@@ -9,7 +9,7 @@ namespace QRScanningFun.Application
 
         private static readonly Dictionary<char, int> AlphaNumericValues = GetAlphaNumericValues();
 
-        private static List<Capacity> Capacities = GetCapacities();
+        private static readonly List<Capacity> Capacities = GetCapacities();
 
         public static EncodingMode SelectEncodingByInput(string s)
         {
