@@ -16,5 +16,12 @@ namespace QRScanningFun.Application.Tests
         {
             Assert.Equal(expectedResult, QRCodeGenerator.GetDataBits(input));
         }
+
+        [Theory]
+        [InlineData("HELLO WORLD", "0110000101101111000110100010111001011011100010011010100001101")]
+        public void AlphanumericEncoding(string input, string expectedResult)
+        {
+            Assert.Equal(expectedResult, QRCodeGenerator.GetDataBits(input));
+        }
     }
 }
