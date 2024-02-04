@@ -166,11 +166,118 @@ namespace QRScanningFun.Application
             return terminatedString;
         }
 
-        public static string GetErrorCorrectionCode(string rawDataBitsInput, ErrorCorrectionLevel errorCorrectionLevel = ErrorCorrectionLevel.Q)
+        public static List<int> GetErrorCorrectionCodes(string rawDataBitsInput, CodeVersion version, ErrorCorrectionLevel errorCorrectionLevel = ErrorCorrectionLevel.Q)
         {
+            var dataCodewordBlocks = new List<int>();
+            while (rawDataBitsInput.Length > 0)
+            {
+                var codeWord = rawDataBitsInput[..8];
+                dataCodewordBlocks.Add(Convert.ToInt32(codeWord, 2));
+                rawDataBitsInput = rawDataBitsInput[8..];
+            }
 
+            var numberOfErrorCorrectionCodewords =
+                GetNumberOfErrorCorrectionCodewords(version, errorCorrectionLevel);
+            var messagePolynomial = GetMessagePolynomial(dataCodewordBlocks, numberOfErrorCorrectionCodewords);
+            var generatorPolynomial = GetGeneratorPolynomial(numberOfErrorCorrectionCodewords);
+            generatorPolynomial = EnsureSameLeadExponent(generatorPolynomial, messagePolynomial);
 
-            return string.Empty;
+            var divisionCounter = messagePolynomial.Count;
+            while (divisionCounter > 0)
+            {
+                var leadMessageTerm = messagePolynomial.First().ConvertToAlphaNotation();
+                generatorPolynomial = generatorPolynomial.Select(x => x.MultiplyWithAlpha(leadMessageTerm)).ToList();
+                var generatorIntegerNotation = ConvertToIntegerNotation(generatorPolynomial);
+                messagePolynomial = XORGeneratorResult(generatorIntegerNotation, messagePolynomial);
+                if (messagePolynomial[0].Coefficient == 0)
+                {
+                    messagePolynomial.RemoveAt(0);
+                }
+                
+                divisionCounter--;
+            }
+
+            return messagePolynomial.Select(x => x.Coefficient).ToList();
+        }
+
+        private static List<Polynomial> XORGeneratorResult(List<Polynomial> generatorPolynomial, List<Polynomial> messagePolynomial)
+        {
+            var result = new List<Polynomial>();
+            for (int i = 0; i < messagePolynomial.Count; i++)
+            {
+                if (i < generatorPolynomial.Count)
+                {
+                    result.Add(messagePolynomial[i].XOR(generatorPolynomial[i]));
+                }
+                else
+                {
+                    result.Add(messagePolynomial[i].XOR(new Polynomial(0, 0, 0)));
+                }
+            }
+
+            return result;
+            return messagePolynomial.Select((x, i) => x.XOR(generatorPolynomial[i])).ToList();
+        }
+
+        private static List<Polynomial> ConvertToIntegerNotation(List<Polynomial> generatorPolynomial)
+        {
+            return generatorPolynomial.Select(x => x.ConvertToIntegerNotation()).ToList();
+        }
+
+        private static List<Polynomial> EnsureSameLeadExponent(List<Polynomial> generatorPolynomial, List<Polynomial> messagePolynomial)
+        {
+            var leadMessagePolynomial = messagePolynomial.First();
+            var leadGeneratorPolynomial = generatorPolynomial.First();
+            var result = new List<Polynomial>();
+            if (leadMessagePolynomial.Exponent <= leadGeneratorPolynomial.Exponent) // TODO: Verify and implement
+            {
+                return result;
+            }
+
+            var multiplier = leadMessagePolynomial.Exponent - leadGeneratorPolynomial.Exponent;
+            foreach (var block in generatorPolynomial)
+            {
+                result.Add(block.MultiplyWithExponent(multiplier));
+            }
+
+            return result;
+        }
+
+        private static List<Polynomial> GetMessagePolynomial(List<int> dataCodewordBlocks, int numberOfErrorCorrectionCodewords)
+        {
+            var messagePolynomial = new List<Polynomial>();
+            var startingExponent = dataCodewordBlocks.Count - 1;
+            foreach (var codeWord in dataCodewordBlocks)
+            {
+                messagePolynomial.Add(new Polynomial(codeWord, startingExponent).MultiplyWithExponent(numberOfErrorCorrectionCodewords));
+                startingExponent--;
+            }
+
+            return messagePolynomial;
+        }
+
+        private static List<Polynomial> GetGeneratorPolynomial(int numberOfErrorCorrectionCodewords)
+        {
+            // TODO: Implement this.
+            return
+            [
+                new Polynomial(1, 10, 0),
+                new Polynomial(1, 9, 251),
+                new Polynomial(1, 8, 67),
+                new Polynomial(1, 7, 46),
+                new Polynomial(1, 6, 61),
+                new Polynomial(1, 5, 118),
+                new Polynomial(1, 4, 70),
+                new Polynomial(1, 3, 64),
+                new Polynomial(1, 2, 94),
+                new Polynomial(1, 1, 32),
+                new Polynomial(1, 0, 45)
+            ];
+        }
+
+        private static int GetNumberOfErrorCorrectionCodewords(CodeVersion version, ErrorCorrectionLevel errorCorrectionLevel)
+        {
+            return 10; // TODO: Implement this.
         }
 
         public static int GetCharacterCountIndicatorLength(CodeVersion version, EncodingMode mode)
