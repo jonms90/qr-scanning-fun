@@ -156,10 +156,13 @@ namespace QRScanningFun.Application
             }
 
             var bytesToPad = (totalNumberOfBitsRequired - terminatedString.Length) / 8;
+            var padByteFlag = true;
             while (bytesToPad > 0)
             {
-                var padByteString = bytesToPad % 2 != 0 ? PadByte236 : PadByte17;
+
+                var padByteString = padByteFlag ? PadByte236 : PadByte17;
                 terminatedString += padByteString;
+                padByteFlag = !padByteFlag;
                 bytesToPad--;
             }
 
@@ -180,16 +183,16 @@ namespace QRScanningFun.Application
                 GetNumberOfErrorCorrectionCodewords(version, errorCorrectionLevel);
             var messagePolynomial = GetMessagePolynomial(dataCodewordBlocks, numberOfErrorCorrectionCodewords);
             var generatorPolynomial = GetGeneratorPolynomial(numberOfErrorCorrectionCodewords);
-            generatorPolynomial = EnsureSameLeadExponent(generatorPolynomial, messagePolynomial);
 
             var divisionCounter = messagePolynomial.Count;
             while (divisionCounter > 0)
             {
+                var tempGeneratorPolynomial = EnsureSameLeadExponent(generatorPolynomial, messagePolynomial);
                 var leadMessageTerm = messagePolynomial.First().ConvertToAlphaNotation();
-                generatorPolynomial = generatorPolynomial.Select(x => x.MultiplyWithAlpha(leadMessageTerm)).ToList();
-                var generatorIntegerNotation = ConvertToIntegerNotation(generatorPolynomial);
+                var multipliedGeneratorPolynomial = tempGeneratorPolynomial.Select(x => x.MultiplyWithAlpha(leadMessageTerm)).ToList();
+                var generatorIntegerNotation = ConvertToIntegerNotation(multipliedGeneratorPolynomial);
                 messagePolynomial = XORGeneratorResult(generatorIntegerNotation, messagePolynomial);
-                if (messagePolynomial[0].Coefficient == 0)
+                if (messagePolynomial.Count > 0 && messagePolynomial[0].Coefficient == 0)
                 {
                     messagePolynomial.RemoveAt(0);
                 }
@@ -203,20 +206,24 @@ namespace QRScanningFun.Application
         private static List<Polynomial> XORGeneratorResult(List<Polynomial> generatorPolynomial, List<Polynomial> messagePolynomial)
         {
             var result = new List<Polynomial>();
-            for (int i = 0; i < messagePolynomial.Count; i++)
+            var count = Math.Max(generatorPolynomial.Count, messagePolynomial.Count);
+            for (int i = 0; i < count; i++)
             {
-                if (i < generatorPolynomial.Count)
+                if (i < generatorPolynomial.Count && i < messagePolynomial.Count)
                 {
                     result.Add(messagePolynomial[i].XOR(generatorPolynomial[i]));
                 }
-                else
+                else if(i >= generatorPolynomial.Count)
                 {
                     result.Add(messagePolynomial[i].XOR(new Polynomial(0, 0, 0)));
+                }
+                else
+                {
+                    result.Add(new Polynomial(0, generatorPolynomial[i].Exponent, 0).XOR(generatorPolynomial[i]));
                 }
             }
 
             return result;
-            return messagePolynomial.Select((x, i) => x.XOR(generatorPolynomial[i])).ToList();
         }
 
         private static List<Polynomial> ConvertToIntegerNotation(List<Polynomial> generatorPolynomial)
@@ -228,12 +235,12 @@ namespace QRScanningFun.Application
         {
             var leadMessagePolynomial = messagePolynomial.First();
             var leadGeneratorPolynomial = generatorPolynomial.First();
-            var result = new List<Polynomial>();
             if (leadMessagePolynomial.Exponent <= leadGeneratorPolynomial.Exponent) // TODO: Verify and implement
             {
-                return result;
+                return generatorPolynomial;
             }
 
+            var result = new List<Polynomial>();
             var multiplier = leadMessagePolynomial.Exponent - leadGeneratorPolynomial.Exponent;
             foreach (var block in generatorPolynomial)
             {
@@ -271,7 +278,7 @@ namespace QRScanningFun.Application
                 new Polynomial(1, 3, 64),
                 new Polynomial(1, 2, 94),
                 new Polynomial(1, 1, 32),
-                new Polynomial(1, 0, 45)
+                new Polynomial(0, 0, 45)
             ];
         }
 

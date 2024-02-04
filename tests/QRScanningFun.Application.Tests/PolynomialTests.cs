@@ -20,7 +20,7 @@
 
         [Theory]
         [InlineData(32, 5)]
-        [InlineData(1, 0)]
+        [InlineData(1, 255)]
         [InlineData(2, 1)]
         [InlineData(4, 2)]
         [InlineData(8, 3)]

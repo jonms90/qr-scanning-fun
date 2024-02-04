@@ -17,14 +17,14 @@ public class Polynomial
 
     public Polynomial MultiplyWithExponent(int multiplier)
     {
-        return new Polynomial(Coefficient, Exponent + multiplier);
+        return new Polynomial(Coefficient, Exponent + multiplier, Alpha);
     }
 
     public Polynomial ConvertToAlphaNotation()
     {
         if (!AntilogValues.TryGetValue(Coefficient, out int alphaValue))
         {
-            throw new NotImplementedException($"Missing Antilog entry for key {Coefficient}");
+            throw new NotImplementedException($"Missing Log entry for key {Coefficient}");
         }
 
         return new Polynomial(0, 0, alphaValue);
@@ -34,7 +34,7 @@ public class Polynomial
     {
         return new Dictionary<int, int>()
         {
-            {1, 0},
+            {1, 255},
             {2, 1},
             {3, 25},
             {4, 2},
@@ -42,7 +42,7 @@ public class Polynomial
             {6, 26},
             {7, 198},
             {8, 3},
-            {9, 58},
+            {9, 223},
             {10, 51},
             {11, 238},
             {12, 27},
@@ -236,6 +236,7 @@ public class Polynomial
             {200, 196},
             {201, 23},
             {202, 73},
+            {203, 236},
             {204, 127},
             {205, 12},
             {206, 111},
@@ -304,6 +305,11 @@ public class Polynomial
 
     public Polynomial ConvertToIntegerNotation()
     {
+        if (Alpha == 0)
+        {
+            return new Polynomial(1, Exponent, Alpha);
+        }
+
         if (!AntilogValues.ContainsValue(Alpha))
         {
             throw new NotImplementedException($"Missing Antilog entry for value {Alpha}");
@@ -311,12 +317,12 @@ public class Polynomial
 
         var coefficient = AntilogValues.First(a => a.Value == Alpha).Key;
 
-        return new Polynomial(coefficient, Exponent, 0);
+        return new Polynomial(coefficient, Exponent, Alpha);
     }
 
     public Polynomial XOR(Polynomial other)
     {
         var coefficient = Coefficient ^ other.Coefficient;
-        return new Polynomial(coefficient, Exponent, Alpha);
+        return new Polynomial(coefficient, Exponent, other.Alpha);
     }
 }
