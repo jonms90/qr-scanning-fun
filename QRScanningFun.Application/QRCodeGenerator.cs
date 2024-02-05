@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Drawing;
+using System.Drawing.Imaging;
+using System.Text;
 
 namespace QRScanningFun.Application
 {
@@ -167,6 +169,39 @@ namespace QRScanningFun.Application
             }
 
             return terminatedString;
+        }
+
+        public static string GetFinalMessage(string rawDataBits, List<int> errorCorrectionCodewords)
+        {
+            var errorCorrection = string.Join("",
+                errorCorrectionCodewords.Select(x => Convert.ToString(x, 2)));
+            return rawDataBits + errorCorrection;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Only supported on Windows due to Bitmap")]
+        public static Bitmap CreateModulePlacement(string input, CodeVersion version)
+        {
+            // TODO: Handle different versions than v1.
+            var result = new Bitmap(21, 21);
+            Graphics g = Graphics.FromImage(result);
+            g.FillRectangle(Brushes.White, 0, 0, 21, 21);
+            // 1. Place Finder Patterns
+            // 1a. Top Left
+            g.FillRectangle(Brushes.Black, 0, 0, 7, 7);
+            g.FillRectangle(Brushes.White, 1, 1, 5, 5);
+            g.FillRectangle(Brushes.Black, 2, 2, 3, 3);
+
+            // 1b. Top Right
+            g.FillRectangle(Brushes.Black, 21-7, 0, 7, 7);
+            g.FillRectangle(Brushes.White, 21-6, 1, 5, 5);
+            g.FillRectangle(Brushes.Black, 21-5, 2, 3, 3);
+
+            // 1c. Bottom Left
+            g.FillRectangle(Brushes.Black, 0, 21-7, 7, 7);
+            g.FillRectangle(Brushes.White, 1 , 21-6, 5, 5);
+            g.FillRectangle(Brushes.Black, 2, 21-5, 3, 3);
+
+            return result;
         }
 
         public static List<int> GetErrorCorrectionCodes(string rawDataBitsInput, CodeVersion version, ErrorCorrectionLevel errorCorrectionLevel = ErrorCorrectionLevel.Q)

@@ -26,4 +26,10 @@
     <ProjectReference Include="..\..\QRScanningFun.Application\QRScanningFun.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="images\finderpatterns.bmp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
