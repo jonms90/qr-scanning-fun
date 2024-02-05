@@ -68,5 +68,22 @@ namespace QRScanningFun.Application.Tests
                 }
             }
         }
+
+        [Fact]
+        public void TimingPatternsHorizontal()
+        {
+            var rawData = QRCodeGenerator.GetRawDataBits("HELLO WORLD", ErrorCorrectionLevel.M);
+            var errorCodes =
+                QRCodeGenerator.GetErrorCorrectionCodes(rawData, CodeVersion.V1,
+                    ErrorCorrectionLevel.M);
+            var data = QRCodeGenerator.GetFinalMessage(rawData, errorCodes);
+            var result = QRCodeGenerator.CreateModulePlacement(data, CodeVersion.V1);
+            Assert.NotNull(result);
+            var expected = new Bitmap("images/timingpatterns.bmp");
+            for (int i = 8; i <= 12; i++)
+            {
+                Assert.Equal(expected.GetPixel(i, 6), result.GetPixel(i, 6));
+            }
+        }
     }
 }

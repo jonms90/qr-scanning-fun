@@ -201,6 +201,14 @@ namespace QRScanningFun.Application
             g.FillRectangle(Brushes.White, 1 , 21-6, 5, 5);
             g.FillRectangle(Brushes.Black, 2, 21-5, 3, 3);
 
+            // 2. Add Separators
+
+            // 3. Add Alignment patterns
+            // No Alignment pattern for V1 codes.
+
+            // 4. Add the timing patterns
+
+
             return result;
         }
 
